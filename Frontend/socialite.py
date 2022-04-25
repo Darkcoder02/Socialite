@@ -30,6 +30,7 @@ groups = []
 def show_frame(frame):
     #To show the selected frame
     frame.tkraise()
+    distroy_frame(frame)
     
 def button_login(name, phone, cursor, users):
     name_text = name.get()
@@ -69,8 +70,7 @@ def button_contacts(name, phone, cursor, names):
         n = i + 7
         framen = Frame(root, bg="white")
         framen.grid(row=0, column=0, sticky='nsew')
-        frame4_button_Namesi = Button(frame4, text = contacts[i], bg="#32CD32", fg="black", height=1, width=15,
-                                      command=lambda:show_frame(framen))
+        frame4_button_Namesi = Button(frame4, text = contacts[i], bg="#32CD32", fg="black", height=1, width=15,command=lambda:show_frame(framen))
         frame4_button_Namesi.configure(font=("Helvetica", 16, "bold"))
         frame4_button_Namesi.place(relx=0.445,rely=(i*0.05)+0.15)
         
@@ -91,25 +91,25 @@ def button_profile(name, phone, cursor, users):
     users.append(data1[0][0])
     #print(users)
     
-    # query2 = "CREATE VIEW user_profile AS SELECT name, phone_number, bio FROM user WHERE uid = %s"%(users[0])
-    # cursor.execute(query2)
+    query2 = "CREATE VIEW user_profile AS SELECT name, phone_number, bio FROM user WHERE uid = %s"%(users[0])
+    cursor.execute(query2)
     
-    query3 = "select * from user_profile"
-    cursor.execute(query3)
+    query2 = "select * from user_profile"
+    cursor.execute(query2)
     data3 = cursor.fetchall()
     #print(data3)
     
     query4 = "DROP VIEW user_profile"
     cursor.execute(query4)
     
-    frame5_label_Profile_name = Label(frame5, text = "Name: " + data3[0][0], font="Raleway", bg="white", fg="grey", height=2, width=30)
-    frame5_label_Profile_name.grid(row = 1, column = 1)
+    frame5_label_Profile_name = Label(frame5, text = "Name: " + data3[0][0], font=("Helvetica", 16, "bold"), bg="#93C572", fg="#123524", height=1, width=30)
+    frame5_label_Profile_name.place(relx = 0.4,rely = 0.2)
 
-    frame5_label_Profile_phone = Label(frame5, text = "Phone: " + str(int(data3[0][1])), font="Raleway", bg="white", fg="grey", height=2, width=30)
-    frame5_label_Profile_phone.grid(row = 2, column = 1)
+    frame5_label_Profile_phone = Label(frame5, text = "Phone: " + str(int(data3[0][1])), font=("Helvetica", 16, "bold"), bg="#93C572", fg="#123524", height=1, width=30)
+    frame5_label_Profile_phone.place(relx = 0.4,rely = 0.25)
 
-    frame5_label_Profile_bio = Label(frame5, text = "Bio: \n" + data3[0][2], font="Raleway", bg="white", fg="grey", height=2, width=30)
-    frame5_label_Profile_bio.grid(row = 3, column = 1)
+    frame5_label_Profile_bio = Label(frame5, text = "Bio: \n" + data3[0][2], font=("Helvetica", 16, "bold"), bg="#93C572", fg="#123524", height=2, width=30)
+    frame5_label_Profile_bio.place(relx = 0.4,rely = 0.312)
 
     show_frame(frame5)
     
@@ -152,10 +152,11 @@ def button_groups(name, phone, cursor, users):
         framen_button_Back = Button(framex, text="Back", command=lambda:show_frame(frame3),font=("Helvetica", 16, "bold"), bg="grey", fg="white", height=1, width=5)
         framen_button_Back.grid(row = 0, column = 0)
     
-        
     show_frame(frame6)
-
-
+ 
+def distroy_frame(frame):
+    exit_button = Button(frame, text="Exit", font = ("Helvetica",20,"bold"), command=root.destroy)
+    exit_button.place(relx=0.949,rely=0)
 
 #frames
 frame1 = Frame(root, bg="#1B453D")
@@ -233,8 +234,8 @@ frame4_button_Back = Button(frame4, text="Back", command=lambda: show_frame(fram
 frame4_button_Back.grid(row = 0, column = 0)
 
 # Frame5: Profile page
-frame5_label_Profile = Label(frame5, text = "Profile", font=("Helvetica",20, "bold"), bg="white", fg="black", height=2, width=15)
-frame5_label_Profile.grid(row = 0, column = 1)
+frame5_label_Profile = Label(frame5, text = "Profile", font=("Helvetica",20, "bold"), bg="#93C572", fg="black", height=2, width=15)
+frame5_label_Profile.place(relx = 0.43,rely=0.07)
 
 frame5_button_Back = Button(frame5, text="Back", command=lambda: show_frame(frame3),font=("Helvetica",17, "bold"), bg="gray", fg="Black", height=1, width=5)
 frame5_button_Back.grid(row = 0, column = 0)
@@ -246,5 +247,8 @@ frame6_label_Groups.config(font = ("Helvetica",20,"bold"))
 
 frame6_button_Back = Button(frame6, text="Back", command=lambda: show_frame(frame3),font=("Helvetica",17, "bold"), bg="grey", fg="Black", height=1, width=5)
 frame6_button_Back.grid(row = 0, column = 0)
+
+exit_button = Button(root, text="Exit", font = ("Helvetica",20,"bold"), command=root.destroy)
+exit_button.place(relx=0.949,rely=0)
 
 root.mainloop()
