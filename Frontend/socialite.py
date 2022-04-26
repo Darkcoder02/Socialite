@@ -65,17 +65,23 @@ def button_contacts(name, phone, cursor, names):
             contacts.append(i[1])
 
     #print(contacts)
-    
+        
     for i in range(len(contacts)):
         n = i + 7
-        framen = Frame(root, bg="white")
+        framen = Frame(root, bg="#1B453D")
         framen.grid(row=0, column=0, sticky='nsew')
         frame4_button_Namesi = Button(frame4, text = contacts[i], bg="#32CD32", fg="black", height=1, width=15,command=lambda:show_frame(framen))
         frame4_button_Namesi.configure(font=("Helvetica", 16, "bold"))
         frame4_button_Namesi.place(relx=0.445,rely=(i*0.05)+0.15)
         
-    framen_button_Back = Button(framen, text="Back", command=lambda:show_frame(frame3), bg="#32CD32", fg="Black", height=1, width=5)
-    frame4_button_Namesi.configure(font=("Helvetica", 16, "bold"))
+        message_label = Label(framen, text = "Message", bg="#235347", fg="black", height=2, width=15)
+        message_label.configure(font=("Helvetica", 20, "bold"))
+        message_label.place(relx = 0.44, rely = 0.05)
+        
+        message_query = ""
+        
+    framen_button_Back = Button(framen, text="Back", command=lambda:show_frame(frame4), bg="gray", fg="Black", height=1, width=5)
+    framen_button_Back.configure(font=("Helvetica", 16, "bold"))
     framen_button_Back.grid(row = 0, column = 0)
         
     show_frame(frame4)
@@ -109,7 +115,7 @@ def button_profile(name, phone, cursor, users):
     frame5_label_Profile_phone.place(relx = 0.4,rely = 0.25)
 
     frame5_label_Profile_bio = Label(frame5, text = "Bio: \n" + data3[0][2], font=("Helvetica", 16, "bold"), bg="#93C572", fg="#123524", height=2, width=30)
-    frame5_label_Profile_bio.place(relx = 0.4,rely = 0.312)
+    frame5_label_Profile_bio.place(relx = 0.4,rely = 0.31)
 
     show_frame(frame5)
     
@@ -142,14 +148,18 @@ def button_groups(name, phone, cursor, users):
     for i in range(len(groups)):
         pass
         x = i + 7
-        framex = Frame(root, bg="white")
+        framex = Frame(root, bg="#1B453D")
         framex.grid(row=0, column=0, sticky='nsew')
         frame6_button_Namesi = Button(frame6, text = groups[i], bg="gray", fg="black", height=1, width=15,command=lambda:show_frame(framex))
         frame6_button_Namesi.configure(font=("Helvetica", 16, "bold"))
         frame6_button_Namesi.grid(row = i+1, column = 1)
         frame6_button_Namesi.place(relx=0.445,rely=(i*0.05)+0.15)
         
-        framen_button_Back = Button(framex, text="Back", command=lambda:show_frame(frame3),font=("Helvetica", 16, "bold"), bg="grey", fg="white", height=1, width=5)
+        message_label = Label(framex, text = "Message", bg="#235347", fg="black", height=2, width=15)
+        message_label.configure(font=("Helvetica", 20, "bold"))
+        message_label.place(relx = 0.44, rely = 0.05)
+        
+        framen_button_Back = Button(framex, text="Back", command=lambda:show_frame(frame6),font=("Helvetica", 16, "bold"), bg="grey", fg="black", height=1, width=5)
         framen_button_Back.grid(row = 0, column = 0)
     
     show_frame(frame6)
@@ -230,11 +240,12 @@ frame3_button_Groups.configure(font=("Helvetica",20, "bold"))
 # Frame4: Contacts page 
 frame4_label_Contacts = Label(frame4, text = "Contacts",font=("Helvetica",20, "bold"), bg="#235347", fg="black", height=2, width=15)
 frame4_label_Contacts.place(relx = 0.44,rely = 0.05)
-frame4_button_Back = Button(frame4, text="Back", command=lambda: show_frame(frame3),font=("Helvetica",17, "bold"), bg="#32CD32", fg="Black", height=1, width=5)
+
+frame4_button_Back = Button(frame4, text="Back", command=lambda: show_frame(frame3),font=("Helvetica",16, "bold"), bg="gray", fg="Black", height=1, width=5)
 frame4_button_Back.grid(row = 0, column = 0)
 
 # Frame5: Profile page
-frame5_label_Profile = Label(frame5, text = "Profile", font=("Helvetica",20, "bold"), bg="#93C572", fg="black", height=2, width=15)
+frame5_label_Profile = Label(frame5, text = "Profile", font=("Helvetica",20, "bold"), bg="#93C572", fg="#123524", height=2, width=15)
 frame5_label_Profile.place(relx = 0.43,rely=0.07)
 
 frame5_button_Back = Button(frame5, text="Back", command=lambda: show_frame(frame3),font=("Helvetica",17, "bold"), bg="gray", fg="Black", height=1, width=5)
