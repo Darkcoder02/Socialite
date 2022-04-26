@@ -36,7 +36,7 @@ def button_login(name, phone, cursor, users):
     name_text = name.get()
     phone_text = phone.get()
     #bio_text = bio.get()
-    query = "select uid from User where phone_number = %s"%(phone_text)
+    query = "select uid from User where phone_number = %s and name = '%s'"%(phone_text,name_text) #Akshit Kumar 1000000000
     cursor.execute(query)
     data = cursor.fetchall()
     users.append(data[0][0])
@@ -191,7 +191,7 @@ frame2_logo = Label(frame2, image=logo1)
 frame2_logo.place(relx = 0.5, rely = 0.3, anchor = CENTER)
 
 name = StringVar()
-frame2_label_name = Label(frame2, text="Name:", font="Raleway", bg="#235347", fg="white", height=1, width=10)
+frame2_label_name = Label(frame2, text="Name:", bg="#235347", fg="white", height=1, width=10)
 frame2_label_name.place(relx = 0.35, rely = 0.7, anchor=CENTER)
 frame2_label_name.configure(font=("Helvetica", 16, "bold"))
 frame2_input_name = Entry(frame2, textvariable = name).place(relx = 0.46, rely = 0.7, anchor=CENTER)
