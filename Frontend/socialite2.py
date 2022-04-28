@@ -169,7 +169,7 @@ def create_message_individual(contact_id, MessageIndi):
     print("Time =", str(time))
     
     query2 = """INSERT INTO message(sender_id, message_body, time, date, visible_to_me)
-VALUES({}, '{}', '{}', curdate(), TRUE);""".format(str(users[0]), str(message), str(time))
+    VALUES({}, '{}', '{}', curdate(), TRUE);""".format(str(users[0]), str(message), str(time))
     cursor.execute(query2)
     connection.commit()    
 
@@ -182,7 +182,7 @@ VALUES({}, '{}', '{}', curdate(), TRUE);""".format(str(users[0]), str(message), 
     print(mssg_id)
     
     query4 = """INSERT INTO message_recipient(mssg_id, receiver_id)
-VALUES({}, '{}');""".format(mssg_id, contact)
+    VALUES({}, '{}');""".format(mssg_id, contact)
     cursor.execute(query4)
     connection.commit() 
     

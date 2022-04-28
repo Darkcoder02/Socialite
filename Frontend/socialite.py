@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import ttk;
 from PIL import Image, ImageTk
+from datetime import datetime
 
 import mysql.connector as mysql
 
@@ -103,6 +104,12 @@ def load_messages_individual(contact_id,frame):
     message_label = tk.Label(frame, text = "Message", bg="#235347", fg="black", height=2, width=15)
     message_label.configure(font=("Helvetica", 20, "bold"))
     message_label.place(relx = 0.44, rely = 0.05)
+    
+    MessageIndi = tk.StringVar()
+    frame_input_message = tk.Entry(frame, textvariable = MessageIndi, width=70).place(relx = 0.3,rely=0.57)
+    
+    frame_button_Send = tk.Button(frame, text="Send", command=lambda: create_message_individual(contact_id, MessageIndi),font=("Helvetica", 16, "bold"), bg="gray", fg="Black", height=1, width=5)
+    frame_button_Send.place(relx = 0.75,rely=0.569)
     phone_text = phone.get()
     query1 = "select uid from User where phone_number = %s"%(phone_text)
     cursor.execute(query1)
@@ -171,6 +178,52 @@ def load_messages_individual(contact_id,frame):
     
     text_widget_2.place(relx = 0.55,rely=0.3)
     text_widget_2.insert(tk.END, sent)
+
+def create_message_individual(contact_id, MessageIndi):
+    phone_text = phone.get()
+    query1 = "select uid from User where phone_number = %s"%(phone_text)
+    cursor.execute(query1)
+    data1 = cursor.fetchall()
+    #users.append(data1[0][0])
+    #users = users[-1]
+    print(users)
+    
+    contact = contact_id.get()
+    #print(contact)
+    
+    message = MessageIndi.get()
+    print(message)
+    
+    from datetime import date
+    today = date.today()
+    date = today.strftime("%Y-%m-%d")
+    print("date =", date)
+    
+    from datetime import datetime
+    now = datetime.now()
+    time = now.strftime("%H:%M:%S")
+    print("Time =", str(time))
+    
+    query2 = """INSERT INTO message(sender_id, message_body, time, date, visible_to_me)
+    VALUES({}, '{}', '{}', curdate(), TRUE);""".format(str(users[0]), str(message), str(time))
+    cursor.execute(query2)
+    connection.commit()    
+
+    query3 = """SELECT mssg_id from message where sender_id = %s"""%(users[0])   
+    cursor.execute(query3)
+    data3 = cursor.fetchall()
+    print(data3)
+    
+    mssg_id = data3[-1][0]
+    print(mssg_id)
+    
+    query4 = """INSERT INTO message_recipient(mssg_id, receiver_id)
+    VALUES({}, '{}');""".format(mssg_id, contact)
+    cursor.execute(query4)
+    connection.commit() 
+    
+    load_messages_individual(contact_id)
+
 
 
 def button_profile(name, phone, cursor, users):
