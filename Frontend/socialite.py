@@ -339,6 +339,37 @@ def create_message_individual(contact_id, MessageIndi, frame):
     
     load_messages_individual(contact_id, frame)
 
+def change_query(users,name,phone,bio):
+    user_id = users[0] 
+    uname = name.get()
+    uphone = float(phone.get())
+    ubio = bio.get()
+    query1 = "UPDATE user SET name = '%s' ,phone_number = %s,bio = '%s' WHERE uid=%s"%(uname,uphone,ubio,user_id)
+    cursor.execute(query1)
+    connection.commit()
+    button_profile(name, phone, cursor, users)
+    
+def change_profile(frame,users):
+    user_id = users[0]
+    show_frame(frame)
+    
+    name_label = tk.Label(frame,font=("Helvetica", 20, "bold"), text = "Edit Profile", bg="#235347", fg="black", height=1, width=10).place(relx = 0.446, rely = 0.06)
+    name_label = tk.Label(frame,font=("Helvetica", 20, "bold"), text = "Name", bg="#235347", fg="black", height=1, width=10).place(relx = 0.3, rely = 0.13)
+    
+    name = tk.StringVar()
+    frame9_input_name = tk.Entry(frame, textvariable = name).place(relx = 0.5, rely = 0.15, anchor=tk.CENTER)
+    phone_label = tk.Label(frame,font=("Helvetica", 20, "bold"), text = "phone", bg="#235347", fg="black", height=1, width=10).place(relx = 0.3, rely = 0.18)
+    
+    phone = tk.StringVar()
+    frame9_input_phone = tk.Entry(frame, textvariable = phone).place(relx = 0.5, rely = 0.2, anchor=tk.CENTER)
+    bio_label = tk.Label(frame,font=("Helvetica", 20, "bold"), text = "Bio", bg="#235347", fg="black", height=1, width=10).place(relx = 0.3, rely = 0.23)
+    
+    bio = tk.StringVar()
+    frame9_input_bio = tk.Entry(frame, textvariable = bio).place(relx = 0.5, rely = 0.25, anchor=tk.CENTER)
+    change_button = tk.Button(frame,text = "Save", font=("Helvetica", 20, "bold"), command=lambda:change_query(users,name,phone,bio),bg="gray", fg="black", height=2, width=10).place(relx = 0.445,rely=0.35)
+    
+    frame_button_Back = tk.Button(frame, text="Back", command=lambda: show_frame(frame5),font=("Helvetica",16, "bold"), bg="gray", fg="Black", height=1, width=5)
+    frame_button_Back.grid(row = 0, column = 0)
 
 
 def button_profile(name, phone, cursor, users):
@@ -350,7 +381,7 @@ def button_profile(name, phone, cursor, users):
     data1 = cursor.fetchall()
     users.clear()
     users.append(data1[0][0])
-    #print(users)
+    #print(users)    
     
     query2 = "CREATE VIEW user_profile AS SELECT name, phone_number, bio FROM user WHERE uid = %s"%(users[0])
     cursor.execute(query2)
@@ -372,6 +403,10 @@ def button_profile(name, phone, cursor, users):
     frame5_label_Profile_bio = tk.Label(frame5, text = "Bio: \n" + data3[0][2], font=("Helvetica", 16, "bold"), bg="#93C572", fg="#123524", height=2, width=30)
     frame5_label_Profile_bio.place(relx = 0.4,rely = 0.31)
 
+    frame9 = tk.Frame(root, bg="#1B453D")
+    frame9.grid(row=0, column=0, sticky='nsew')
+    frame5_change_button = tk.Button(frame5,text = "Change Profile", font=("Helvetica", 18, "bold"), command=lambda: change_profile(frame9,users),bg="gray", fg="black", height=1, width=10).place(relx = 0.445,rely=0.4)
+    
     show_frame(frame5)
 
 #
@@ -507,6 +542,8 @@ frame3_button_Groups = tk.Button(frame3, text="Groups", command=lambda: button_g
 frame3_button_Groups.place(relx = 0.64,rely = 0.8)
 frame3_button_Groups.configure(font=("Helvetica",20, "bold"))
 
+frame3_button_Back = tk.Button(frame3, text="Back", command=lambda: show_frame(frame2),font=("Helvetica",16, "bold"), bg="gray", fg="Black", height=1, width=5)
+frame3_button_Back.grid(row = 0, column = 0)
 
 # Frame4: Contacts page 
 frame4_label_Contacts = tk.Label(frame4, text = "Contacts",font=("Helvetica",20, "bold"), bg="#235347", fg="black", height=2, width=15)
@@ -521,6 +558,8 @@ frame5_label_Profile.place(relx = 0.43,rely=0.07)
 
 frame5_button_Back = tk.Button(frame5, text="Back", command=lambda: show_frame(frame3),font=("Helvetica",17, "bold"), bg="gray", fg="Black", height=1, width=5)
 frame5_button_Back.grid(row = 0, column = 0)
+
+# frame5_change_button = tk.Button(frame5,text = "Change Profile", font=("Helvetica", 18, "bold"), command=lambda: change_profile(frame9),bg="gray", fg="black", height=1, width=10).place(relx = 0.445,rely=0.4)
 
 # Frame6: Groups page
 frame6_label_Groups = tk.Label(frame6, text = "Groups", bg="#235347", fg="black", height=2, width=15)
