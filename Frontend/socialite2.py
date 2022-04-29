@@ -199,8 +199,8 @@ def button_profile(name, phone, cursor, users):
     users.append(data1[0][0])
     #print(users)
     
-    query2 = "CREATE VIEW user_profile AS SELECT name, phone_number, bio FROM user WHERE uid = %s"%(users[0])
-    cursor.execute(query2)
+    # query2 = "CREATE VIEW user_profile AS SELECT name, phone_number, bio FROM user WHERE uid = %s"%(users[0])
+    # cursor.execute(query2)
     
     query3 = "select * from user_profile"
     cursor.execute(query3)
@@ -272,34 +272,28 @@ def load_messages_group(group_id):
     group = group_id.get()
     #print(contact)
     show_frame(frame8)
-    
-    # message by user
-    query2 = """SELECT M.mssg_id, M.message_body, M.sender_id, M.time, M.date
-FROM message as M, message_recipient as R
-WHERE (M.sender_id = %s)
-AND (R.receiver_id = %s)
-AND (receiver_group_id = %s)
-AND (M.mssg_id=R.mssg_id)"""%(users[0], group)
-
+    #MESSAGE BY USER
+    query2 = """SELECT DISTINCT  M.mssg_id, M.message_body, M.sender_id, M.time, M.date 
+                FROM message as M NATURAL JOIN message_recipient as R 
+                WHERE (receiver_group_id = %s) AND (M.sender_id = %s)
+                AND (M.mssg_id=R.mssg_id);"""%(group,users[0])
     cursor.execute(query2)
     data2 = cursor.fetchall()
-    #print(data2)
+    print(data2)
     
     # message by contact
-    query3 = """SELECT M.mssg_id, M.message_body, M.sender_id, M.time, M.date
-FROM message as M, message_recipient as R
-WHERE (M.sender_id = %s)
-AND (R.receiver_id = %s)
-AND (receiver_group_id = %s)
-AND (M.mssg_id=R.mssg_id)"""%(group, users[0], group)
+    query3 = """SELECT DISTINCT M.mssg_id, M.message_body, M.sender_id, M.time, M.date 
+    FROM message as M NATURAL JOIN message_recipient as R 
+    WHERE (receiver_group_id = %s) AND (M.sender_id <> %s)
+    AND (M.mssg_id=R.mssg_id);"""%(group, users[0])
 
     cursor.execute(query3)
     data3 = cursor.fetchall()
-    #print(data3)
+    print(data3)
     
     received = ""
     for i in data3:
-        #print(i[4])
+        print(i[4])
         received = received + str(i[4]) + "; " + str(i[3]) + "-> " + str(i[1]) + "\n"
     #print(sent[:-1])
     received = received[:-1]
@@ -330,43 +324,42 @@ def create_message_group(group_id, MessageGrp):
     #print(contact)
     
     message = MessageGrp.get()
-    print(message)
+    # print(message)
     
     from datetime import date
     today = date.today()
     date = today.strftime("%Y-%m-%d")
-    print("date =", date)
+    # print("date =", date)
     
     from datetime import datetime
     now = datetime.now()
-    time = now.strftime("%S:%M:%H")
-    print("Time =", time)
+    time = now.strftime("%H:%M:%S")
+    # print("Time =", time)
     
-    query2 = """INSERT INTO message(sender_id, message_body, time, date, visible_to_me)
-VALUES( {},
-'{}',
-'{}',
-curdate(), 
-TRUE);""".format(users[0], str(message), str(time))
+    query2 = """INSERT INTO message(sender_id, message_body, time, date, visible_to_me) VALUES( {},'{}','{}',curdate(), TRUE);""".format(users[0], str(message), str(time))
     cursor.execute(query2)
     connection.commit()    
 
     query3 = """SELECT mssg_id from message where sender_id = %s"""%(users[0])   
     cursor.execute(query3)
     data3 = cursor.fetchall()
-    print(data3)    
+    # print(data3)    
     
     mssg_id = data3[-1][0]
-    print(mssg_id)
+    # print(mssg_id)
 
     query4 = """INSERT INTO message_recipient(receiver_id, receiver_group_id)
-SELECT distinct user_id, group_id FROM user_group_info
-WHERE group_id = {} and user_id <> {};""".format(group, users[0])
+            SELECT distinct user_id, group_id FROM user_group_info
+            WHERE group_id = {} and user_id <> {};""".format(group, users[0])
     cursor.execute(query4)
     connection.commit() 
     
+    query5 = "UPDATE message_recipient SET mssg_id =%s, status = 'sent' WHERE receiver_group_id = %s and mssg_id is null and status is null;" %(mssg_id,group)
+    cursor.execute(query5)
+    connection.commit()
     load_messages_group(group_id)
-
+    
+    
 def show_frame(frame):
     #To show the selected frame
     frame.tkraise()
