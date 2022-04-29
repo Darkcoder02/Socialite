@@ -68,11 +68,15 @@ def button_contacts(name, phone, cursor, names):
             contacts.append([i[0], i[1]])
     # print(contacts)
     buttons = []
+    profile = []
     for i in range(len(contacts)):
         n = i + 7
         framen = tk.Frame(root, bg="#1B453D")
         framen.grid(row=0, column=0, sticky='nsew')
+        framey = tk.Frame(root, bg="#1B453D")
+        framey.grid(row=0, column=0, sticky='nsew')
         buttons.append(tk.Button(frame4, text = contacts[i][1], font=("Helvetica", 16, "bold"), bg="#32CD32", fg="black", height=1, width=15,command=lambda i=i:contact_frames(framen,i,contacts)).place(relx=0.445,rely=(i*0.05)+0.15))
+        profile.append(tk.Button(frame4, text = "View Profile", font=("Helvetica", 16, "bold"), bg="#32CD32", fg="black", height=1, width=10,command=lambda i=i:profile_frame(framey,i,contacts,framen)).place(relx=0.57,rely=(i*0.05)+0.15))
         
         message_label = tk.Label(framen, text = "Message", bg="#235347", fg="black", height=2, width=10)
         message_label.configure(font=("Helvetica", 20, "bold"), anchor=tk.CENTER)
@@ -81,7 +85,6 @@ def button_contacts(name, phone, cursor, names):
         sent_label = tk.Label(framen, text = "Sent", bg="#235347", fg="black", height=1, width=15)
         sent_label.configure(font=("Helvetica", 20, "bold"))
         sent_label.place(relx = 0.3, rely = 0.2)
-        
         
         received_label = tk.Label(framen, text = "Recieved", bg="#235347", fg="black", height=1, width=15)
         received_label.configure(font=("Helvetica", 20, "bold"))
@@ -93,6 +96,32 @@ def button_contacts(name, phone, cursor, names):
         
     show_frame(frame4)
 
+def load_profile(frame,contact_id,framen):
+    query = "SELECT name, phone_number,bio from user where uid = %s"%(contact_id)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    # print(data)
+    
+    frame_label_Profile = tk.Label(frame, text = "Profile", font=("Helvetica",20, "bold"), bg="#93C572", fg="#123524", height=2, width=15)
+    frame_label_Profile.place(relx = 0.43,rely=0.07)
+
+    frame_button_Back = tk.Button(frame, text="Back", command=lambda: show_frame(frame4),font=("Helvetica",17, "bold"), bg="gray", fg="Black", height=1, width=5)
+    frame_button_Back.grid(row = 0, column = 0)
+    
+    frame_label_Profile_name = tk.Label(frame, text = "Name: " + data[0][0], font=("Helvetica", 16, "bold"), bg="#93C572", fg="#123524", height=1, width=30)
+    frame_label_Profile_name.place(relx = 0.4,rely = 0.2)
+
+    frame_label_Profile_phone = tk.Label(frame, text = "Phone: " + str(int(data[0][1])), font=("Helvetica", 16, "bold"), bg="#93C572", fg="#123524", height=1, width=30)
+    frame_label_Profile_phone.place(relx = 0.4,rely = 0.25)
+
+    frame_label_Profile_bio = tk.Label(frame, text = "Bio: \n" + data[0][2], font=("Helvetica", 16, "bold"), bg="#93C572", fg="#123524", height=2, width=30)
+    frame_label_Profile_bio.place(relx = 0.4,rely = 0.31)
+
+def profile_frame(frame,i,contacts,framen):
+    show_frame(frame)
+    contact_id = contacts[i][0]
+    load_profile(frame,contact_id,framen)
+    
 def contact_frames(frame,i,contacts):
     show_frame(frame)
     contact_id = contacts[i][0]
@@ -157,15 +186,19 @@ def load_messages_individual(contact_id,frame):
     cursor.execute(query3)
     data3 = cursor.fetchall()
     #print(data3)
-    
+    data5 = [(" ")]
+    if(data3):
+        query4 = "SELECT name FROM user Where uid=%s"%(data3[0][2])
+        cursor.execute(query4)
+        data5 = cursor.fetchall()
     received = ""
     for i in data3:
         #print(i[4])
-        received = received + str(i[4]) + "\t" + str(i[3]) + "\n" + str(i[1]) + "\n"
+        received = received + str(i[4]) + "\t" + str(i[3]) +"\t"+str(data5[0][0]) +"\n" + str(i[1]) + "\n"
     #print(sent[:-1])
     received = received[:-1]
     
-    print(received)
+    # print(received)
     sent = ""
     for i in data2:
         #print(i[4])
@@ -187,6 +220,13 @@ def load_messages_group(group_id,frame):
     users.append(data1[0][0])
     #users = users[-1]
     #print(users)
+    members_label = tk.Label(frame, text = "Members", bg="#235347", fg="black", height=1, width=10)
+    members_label.configure(font=("Helvetica", 20, "bold"))
+    members_label.place(relx = 0.04, rely = 0.2)
+    
+    members_window = tk.Text(frame, height=40, width=30)
+    members_window.place(relx = 0.01, rely = 0.3)
+    
     
     text_widget_1 = tk.Text(frame, height=35, width=50)
     text_widget_2 = tk.Text(frame, height=35, width=50)
@@ -201,7 +241,7 @@ def load_messages_group(group_id,frame):
     #print(contact)
     # show_frame(frame)
     #MESSAGE BY USER
-    query2 = """SELECT DISTINCT  M.mssg_id, M.message_body, M.sender_id, M.time, M.date 
+    query2 = """SELECT DISTINCT M.sender_id, M.message_body, M.sender_id, M.time, M.date 
                 FROM message as M NATURAL JOIN message_recipient as R 
                 WHERE (receiver_group_id = %s) AND (M.sender_id = %s)
                 AND (M.mssg_id=R.mssg_id);"""%(group,users[0])
@@ -210,29 +250,43 @@ def load_messages_group(group_id,frame):
     # print(data2)
     
     # message by contact
-    query3 = """SELECT DISTINCT M.mssg_id, M.message_body, M.sender_id, M.time, M.date 
+    query3 = """SELECT DISTINCT M.message_body, M.sender_id, M.time, M.date 
     FROM message as M NATURAL JOIN message_recipient as R 
     WHERE (receiver_group_id = %s) AND (M.sender_id <> %s)
     AND (M.mssg_id=R.mssg_id);"""%(group, users[0])
-
     cursor.execute(query3)
     data3 = cursor.fetchall()
+    
+    # print(data3)
+    data5 = [(" ")]
+    if(data3):
+        query4 = "SELECT name FROM user Where uid=%s"%(data3[0][1])
+        cursor.execute(query4)
+        data5 = cursor.fetchall()
+    
     # print(data3)
     
     received = ""
     for i in data3:
-        print(i[4])
-        received = received + str(i[4]) + "\t" + str(i[3]) + "\n" + str(i[1]) + "\n"
+        received = received + str(i[2]) + "\t"+ str(i[3])+"\t"+ str(data5[0][0]) +"\n" + str(i[0]) + "\n" + "\n"
     # print(received[:-1])
     received = received[:-1]
     
     sent = ""
     for i in data2:
         #print(i[4])
-        sent = sent + str(i[4]) + "\t" + str(i[3]) + "\n" + str(i[1]) + "\n"
+        sent = sent + str(i[4]) + "\t" + str(i[3]) + "\n" + str(i[1]) + "\n" + "\n"
     # print(sent[:-1])
     sent = sent[:-1]
 
+    query = "SELECT U.uid, U.name,U.bio FROM user_group_info as UG NATURAL JOIN user as U WHERE group_id = %s AND (U.uid = UG.user_id)"%(group_id)
+    cursor.execute(query)
+    data4 = cursor.fetchall()
+    # print(data4)
+    members_name = ""
+    for i in data4:
+        members_name = members_name + "~"+str(i[1])+ "\n" + " " + str(i[2]) + "\n" + "\n"
+    members_window.insert(tk.END, members_name)
     # frame8_label_MessageRecieved = tk.Label(frame, text = received, font="Raleway", bg="white", fg="black", height=10, width=40)
     # frame8_label_MessageRecieved.grid(row = 1, column = 1)
     text_widget_1.place(relx = 0.25,rely=0.3)
@@ -342,11 +396,12 @@ def create_message_individual(contact_id, MessageIndi, frame):
 def change_query(users,name,phone,bio):
     user_id = users[0] 
     uname = name.get()
-    uphone = float(phone.get())
+    uphone = phone.get()
     ubio = bio.get()
-    query1 = "UPDATE user SET name = '%s' ,phone_number = %s,bio = '%s' WHERE uid=%s"%(uname,uphone,ubio,user_id)
+    query1 = "UPDATE user SET name = '%s',bio = '%s' WHERE uid=%s"%(uname,ubio,user_id)
     cursor.execute(query1)
     connection.commit()
+    
     button_profile(name, phone, cursor, users)
     
 def change_profile(frame,users):
@@ -358,15 +413,11 @@ def change_profile(frame,users):
     
     name = tk.StringVar()
     frame9_input_name = tk.Entry(frame, textvariable = name).place(relx = 0.5, rely = 0.15, anchor=tk.CENTER)
-    phone_label = tk.Label(frame,font=("Helvetica", 20, "bold"), text = "phone", bg="#235347", fg="black", height=1, width=10).place(relx = 0.3, rely = 0.18)
-    
-    phone = tk.StringVar()
-    frame9_input_phone = tk.Entry(frame, textvariable = phone).place(relx = 0.5, rely = 0.2, anchor=tk.CENTER)
-    bio_label = tk.Label(frame,font=("Helvetica", 20, "bold"), text = "Bio", bg="#235347", fg="black", height=1, width=10).place(relx = 0.3, rely = 0.23)
+    phone_label = tk.Label(frame,font=("Helvetica", 20, "bold"), text = "Bio", bg="#235347", fg="black", height=1, width=10).place(relx = 0.3, rely = 0.18)
     
     bio = tk.StringVar()
-    frame9_input_bio = tk.Entry(frame, textvariable = bio).place(relx = 0.5, rely = 0.25, anchor=tk.CENTER)
-    change_button = tk.Button(frame,text = "Save", font=("Helvetica", 20, "bold"), command=lambda:change_query(users,name,phone,bio),bg="gray", fg="black", height=2, width=10).place(relx = 0.445,rely=0.35)
+    frame9_input_bio = tk.Entry(frame, textvariable = bio).place(relx = 0.5, rely = 0.2, anchor=tk.CENTER)
+    change_button = tk.Button(frame,text = "Save", font=("Helvetica", 20, "bold"), command=lambda:change_query(users,name,phone,bio),bg="gray", fg="black", height=2, width=10).place(relx = 0.445,rely=0.3)
     
     frame_button_Back = tk.Button(frame, text="Back", command=lambda: show_frame(frame5),font=("Helvetica",16, "bold"), bg="gray", fg="Black", height=1, width=5)
     frame_button_Back.grid(row = 0, column = 0)
@@ -439,7 +490,7 @@ def button_groups(name, phone, cursor, users):
         query3 = "SELECT group_id , group_name FROM grp Where group_id = %s"%(i[0])
         cursor.execute(query3)
         data3 = cursor.fetchall()
-        #print(data3)
+        # print(data3)
         groups.append(data3[0])
     
     grp_button = []
@@ -463,6 +514,7 @@ def button_groups(name, phone, cursor, users):
         received_label = tk.Label(framex, text = "Recieved", bg="#235347", fg="black", height=1, width=15)
         received_label.configure(font=("Helvetica", 20, "bold"))
         received_label.place(relx = 0.6, rely = 0.2)
+        
         
         framen_button_Back = tk.Button(framex, text="Back", command=lambda:show_frame(frame6),font=("Helvetica", 16, "bold"), bg="grey", fg="black", height=1, width=5)
         framen_button_Back.grid(row = 0, column = 0)
