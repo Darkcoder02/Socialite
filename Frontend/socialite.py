@@ -211,7 +211,36 @@ def load_messages_individual(contact_id,frame):
     
     text_widget_2.place(relx = 0.55,rely=0.3)
     text_widget_2.insert(tk.END, received)
+
+def update_query(grp_name,group_id):
+    query = "UPDATE grp SET group_name = '%s' WHERE group_id = %s"%(grp_name.get(),group_id)
+    cursor.execute(query)
+    connection.commit()
+    query2 = "REVOKE UPDATE (group_name) ON grp FROM grp_admin"
+    cursor.execute(query2)
+    connection.commit()
+    show_frame(frame3)
+
+def give_name(group_id):
+    frame = tk.Frame(root, bg="#1B453D")
+    frame.grid(row=0, column=0, sticky='nsew')
+    Label_frame = tk.Label(frame, font=("Helvetica", 20, "bold"),text = "Enter Group Name", bg="#235347", fg="black", height=2, width=20).place(relx = 0.42, rely = 0.15)
+    grp_name = tk.StringVar()
+    frame_input_name = tk.Entry(frame, textvariable = grp_name,).place(relx = 0.499, rely = 0.3, anchor=tk.CENTER)
+    frame_button_accept = tk.Button(frame, text="Save", command=lambda:update_query(grp_name,group_id),font = ("Helvetica",20,"bold"), bg="gray", fg="black", height=1, width=5)
+    frame_button_accept.place(relx = 0.475,rely=0.35)
     
+def give_grants(group_id,users):
+    query = "SELECT is_admin FROM user_group_info Where user_id = %s and group_id = %s"%(users[0],group_id)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    # print(data)
+    if(data[0][0] == 1):
+        query = "GRANT UPDATE(group_name) ON grp to grp_admin"
+        cursor.execute(query)
+        connection.commit()
+        give_name(group_id)
+
 def load_messages_group(group_id,frame):
     phone_text = phone.get()
     query1 = "select uid from User where phone_number = %s"%(phone_text)
@@ -242,6 +271,9 @@ def load_messages_group(group_id,frame):
     
     frame_button_Send = tk.Button(frame, text="Send", command=lambda: create_message_group(group_id, Message_group.get(),frame),font = ("Helvetica",20,"bold"), bg="gray", fg="black", height=1, width=5)
     frame_button_Send.place(relx = 0.75,rely=0.909)
+    
+    frame_button_change_name = tk.Button(frame, text="Change Group Name", command=lambda: give_grants(group_id,users),font = ("Helvetica",15,"bold"), bg="gray", fg="black", height=1, width=15)
+    frame_button_change_name.place(relx = 0.85,rely=0.5)
     
     group = group_id
     #print(contact)
