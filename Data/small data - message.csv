@@ -1,0 +1,8 @@
+mssg_id,sender_id,message_body,time,date,visible_to_me,is_dm
+101,1004,hi,10:11:12,2021-09-29,TRUE,0
+102,1002,hello,5:46:40,2021-09-30,TRUE,0
+103,1001,hey,11:19:05,2021-10-01,TRUE,0
+104,1011,hi there,7:16:47,2021-10-02,TRUE,0
+105,1001,hiya,6:54:07,2021-10-03,TRUE,1
+106,1005,hellooo,4:05:55,2021-10-04,TRUE,1
+107,1006,heyyy,16:14:30,2021-10-05,TRUE,1
