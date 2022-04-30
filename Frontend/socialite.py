@@ -224,7 +224,13 @@ def load_messages_group(group_id,frame):
     members_label.configure(font=("Helvetica", 20, "bold"))
     members_label.place(relx = 0.04, rely = 0.2)
     
-    members_window = tk.Text(frame, height=40, width=30)
+    query0 = "SELECT COUNT(%s), group_id FROM user_group_info GROUP BY group_id ORDER BY COUNT(user_id) DESC;"%(users[0])
+    cursor.execute(query0)
+    data0 = cursor.fetchall()
+    
+    number_members_label = tk.Label(frame, font=("Helvetica", 15, "bold"),text = str(data0[0][0])+" Participants", bg="#235347", fg="black", height=1, width=18).place(relx = 0.03, rely = 0.76)
+    
+    members_window = tk.Text(frame, height=25, width=30)
     members_window.place(relx = 0.01, rely = 0.3)
     
     
@@ -368,8 +374,8 @@ def create_message_individual(contact_id, MessageIndi, frame):
     cursor.execute(query2)
     connection.commit()    
 
-    query5 ="""CREATE INDEX message_c ON message (sender_id);"""
-    cursor.execute(query5)
+    # query5 ="""CREATE INDEX message_c ON message (sender_id);"""
+    # cursor.execute(query5)
     # indexList = cursor.fetchall()
     # print(indexList)
     
@@ -379,9 +385,9 @@ def create_message_individual(contact_id, MessageIndi, frame):
     data3 = cursor.fetchall()
     # print(data3)
     
-    query6 ="""ALTER TABLE message DROP INDEX message_c;"""
-    cursor.execute(query6)
-    connection.commit()
+    # query6 ="""ALTER TABLE message DROP INDEX message_c;"""
+    # cursor.execute(query6)
+    # connection.commit()
     
     mssg_id = data3[-1][0]
     print(mssg_id)
@@ -521,6 +527,37 @@ def button_groups(name, phone, cursor, users):
     
     show_frame(frame6)
  
+def show_blocked(phone,frame):
+    show_frame(frame)
+    phone_text = phone.get()
+    #bio_text = bio.get()
+    query = "select uid from User where phone_number = %s"%(phone_text) #Akshit Kumar 1000000000
+    cursor.execute(query)
+    data = cursor.fetchall()
+    users.append(data[0][0])
+    
+    query2="Select U.name ,U.uid ,U.phone_number From user as U, contacts as C Where C.user_id = %s and U.uid = C.contact_person_id and is_blocked = TRUE;"%(users[0])
+    cursor.execute(query2)
+    data2 = cursor.fetchall()    
+    
+    label_blocked = tk.Label(frame, text = "Blocked Contacts", bg="#235347", fg="Black", height=2, width=15)
+    label_blocked.configure(font=("Helvetica", 15, "bold"))
+    label_blocked.place(relx = 0.5, rely = 0.05, anchor=tk.CENTER)
+    
+    if(data2):
+        result = ""
+        for i in data2:
+            result = result +"~"+str(i[0])+"\n"+" "+str(i[2])+"\n"+"\n"
+            
+        label_name = tk.Label(frame, text = result, bg="#235347", fg="Black", height=20, width=15)
+        label_name.configure(font=("Helvetica", 15, "bold"))
+        label_name.place(relx = 0.46, rely = 0.2)
+    
+    else:
+        label_name = tk.Label(frame, text = "No Blocked Contacts Found", bg="#235347", fg="Black", height=2, width=25)
+        label_name.configure(font=("Helvetica", 15, "bold"))
+        label_name.place(relx = 0.42, rely = 0.2)
+        
 def distroy_frame(frame):
     exit_button = tk.Button(frame, text="Exit", font = ("Helvetica",20,"bold"), command=root.destroy)
     exit_button.place(relx=0.949,rely=0)
@@ -532,9 +569,10 @@ frame3 = tk.Frame(root, bg="#1B453D")
 frame4 = tk.Frame(root, bg="#1B453D")
 frame5 = tk.Frame(root, bg="#1B453D")
 frame6 = tk.Frame(root, bg="#1B453D")
+frame7 = tk.Frame(root, bg="#1B453D")
 # frame6 = Frame(root, bg="#1B453D")
 
-for frame in (frame1, frame2, frame3, frame4, frame5, frame6):
+for frame in (frame1, frame2, frame3, frame4, frame5, frame6,frame7):
     frame.grid(row=0, column=0, sticky='nsew')
 
 show_frame(frame1)
@@ -611,8 +649,6 @@ frame5_label_Profile.place(relx = 0.43,rely=0.07)
 frame5_button_Back = tk.Button(frame5, text="Back", command=lambda: show_frame(frame3),font=("Helvetica",17, "bold"), bg="gray", fg="Black", height=1, width=5)
 frame5_button_Back.grid(row = 0, column = 0)
 
-# frame5_change_button = tk.Button(frame5,text = "Change Profile", font=("Helvetica", 18, "bold"), command=lambda: change_profile(frame9),bg="gray", fg="black", height=1, width=10).place(relx = 0.445,rely=0.4)
-
 # Frame6: Groups page
 frame6_label_Groups = tk.Label(frame6, text = "Groups", bg="#235347", fg="black", height=2, width=15)
 frame6_label_Groups.place(relx = 0.44,rely = 0.05)
@@ -623,5 +659,13 @@ frame6_button_Back.grid(row = 0, column = 0)
 
 exit_button = tk.Button(root, text="Exit", font = ("Helvetica",20,"bold"), command=root.destroy)
 exit_button.place(relx=0.949,rely=0)
+
+# Frame 7: Show Blocked Contacts
+frame7_button_profile = tk.Button(frame3, text="Blocked Contacts", command=lambda: show_blocked(phone,frame7), bg="#235347", fg="black", height=1, width=15)
+frame7_button_profile.place(relx = 0.44,rely = 0.9)
+frame7_button_profile.configure(font=("Helvetica",20, "bold"))
+
+frame7_button_Back = tk.Button(frame7, text="Back", command=lambda: show_frame(frame3),font=("Helvetica",16, "bold"), bg="grey", fg="Black", height=1, width=5)
+frame7_button_Back.grid(row = 0, column = 0)
 
 root.mainloop()
