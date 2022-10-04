@@ -610,7 +610,7 @@ for frame in (frame1, frame2, frame3, frame4, frame5, frame6,frame7):
 show_frame(frame1)
 
 # Frame1: Landing page
-logo1 = Image.open('Applogo.png')
+logo1 = Image.open('/Users/ayush/Desktop/Ayush/SEM4/Assignments/Socialite Chatting App/Frontend/Applogo.png')
 logo1 = ImageTk.PhotoImage(logo1)
 frame1_logo = tk.Label(frame1, image=logo1)
 frame1_logo.place(relx = 0.5, rely = 0.3, anchor = tk.CENTER)
